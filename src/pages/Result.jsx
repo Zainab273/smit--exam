@@ -1,22 +1,31 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import Footer from '../components/Footer'
 
 export default function Result() {
   const navigate = useNavigate()
   const [rollNumber, setRollNumber] = useState('')
   const [searchLoading, setSearchLoading] = useState(false)
+  const [result, setResult] = useState(null)
+  const [notFound, setNotFound] = useState(false)
 
   const handleSearch = async (e) => {
     e.preventDefault()
     if (!rollNumber.trim()) return
-    
     setSearchLoading(true)
-    // Simulate search
-    setTimeout(() => {
-      setSearchLoading(false)
-      alert('Result feature coming soon!')
-    }, 1500)
+    setResult(null)
+    setNotFound(false)
+
+    const { data } = await supabase
+      .from('students')
+      .select('*')
+      .eq('roll_number', rollNumber.trim())
+      .single()
+
+    setSearchLoading(false)
+    if (!data) return setNotFound(true)
+    setResult(data)
   }
 
   return (
@@ -35,11 +44,17 @@ export default function Result() {
           <span className="cursor-pointer hover:text-blue-600 transition">Campuses</span>
           <span onClick={() => navigate('/result')} className="cursor-pointer text-blue-600 transition">Check Result</span>
         </div>
-        <button onClick={() => navigate('/student/register')}
-          className="text-white px-5 py-2 rounded-full text-sm font-bold transition flex items-center gap-1"
-          style={{ background: '#0ea5e9' }}>
-          Enroll Now ↗
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => navigate('/student/login')}
+            className="border-2 border-[#0ea5e9] text-[#0ea5e9] px-4 py-2 rounded-full text-sm font-bold hover:bg-blue-50 transition">
+            Login
+          </button>
+          <button onClick={() => navigate('/student/register')}
+            className="text-white px-5 py-2 rounded-full text-sm font-bold transition flex items-center gap-1"
+            style={{ background: '#0ea5e9' }}>
+            Enroll Now ↗
+          </button>
+        </div>
       </nav>
 
       {/* HERO HEADER */}
@@ -87,8 +102,8 @@ export default function Result() {
                 <input
                   type="text"
                   value={rollNumber}
-                  onChange={(e) => setRollNumber(e.target.value)}
-                  placeholder="Enter your roll number"
+                  onChange={(e) => { setRollNumber(e.target.value); setResult(null); setNotFound(false) }}
+                  placeholder="e.g. SMIT-2026-4823"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
                   required
                 />
@@ -98,10 +113,52 @@ export default function Result() {
                 type="submit"
                 disabled={searchLoading}
                 className="w-full py-3 rounded-lg text-white font-bold text-base transition disabled:opacity-50"
-                style={{ background: '#0ea5e9' }}>
+                style={{ background: 'linear-gradient(90deg, #0ea5e9, #5ab87d)' }}>
                 {searchLoading ? 'Searching...' : 'Search Result'}
               </button>
             </form>
+
+            {/* Not Found */}
+            {notFound && (
+              <div className="mt-6 p-4 bg-red-50 rounded-xl border border-red-200 text-center">
+                <svg className="w-10 h-10 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-red-700 font-semibold">No record found</p>
+                <p className="text-red-500 text-sm mt-1">Please check your roll number and try again</p>
+              </div>
+            )}
+
+            {/* Result Card */}
+            {result && (
+              <div className="mt-6 border-2 border-green-200 rounded-xl overflow-hidden">
+                <div className="bg-gradient-to-r from-[#0ea5e9] to-[#5ab87d] text-white p-4 flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center font-bold text-xl">
+                    {result.name?.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-lg">{result.name}</p>
+                    <p className="text-sm text-white/80">Roll No: {result.roll_number}</p>
+                  </div>
+                </div>
+                <div className="p-5 bg-white space-y-3">
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-500 text-sm">Course</span>
+                    <span className="font-semibold text-gray-800 text-sm">{result.course || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-100">
+                    <span className="text-gray-500 text-sm">Status</span>
+                    <span className={`text-sm font-bold px-3 py-1 rounded-full ${result.status === 'dropout' ? 'bg-red-100 text-red-600' : result.is_active ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                      {result.status === 'dropout' ? 'Dropout' : result.is_active ? 'Active' : 'Pending'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className="text-gray-500 text-sm">Enrolled Since</span>
+                    <span className="font-semibold text-gray-800 text-sm">{new Date(result.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
               <p className="text-sm text-blue-800">

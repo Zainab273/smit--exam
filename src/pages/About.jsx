@@ -20,11 +20,17 @@ export default function About() {
           <span className="cursor-pointer hover:text-blue-600 transition">Campuses</span>
           <span onClick={() => navigate('/result')} className="cursor-pointer hover:text-blue-600 transition">Check Result</span>
         </div>
-        <button onClick={() => navigate('/student/register')}
-          className="text-white px-5 py-2 rounded-full text-sm font-bold transition flex items-center gap-1"
-          style={{ background: '#0ea5e9' }}>
-          Enroll Now ↗
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => navigate('/student/login')}
+            className="border-2 border-[#0ea5e9] text-[#0ea5e9] px-4 py-2 rounded-full text-sm font-bold hover:bg-blue-50 transition">
+            Login
+          </button>
+          <button onClick={() => navigate('/student/register')}
+            className="text-white px-5 py-2 rounded-full text-sm font-bold transition flex items-center gap-1"
+            style={{ background: '#0ea5e9' }}>
+            Enroll Now ↗
+          </button>
+        </div>
       </nav>
 
       {/* HERO HEADER */}

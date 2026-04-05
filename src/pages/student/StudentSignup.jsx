@@ -17,30 +17,35 @@ export default function StudentSignup() {
     // Check if student is pre-added by admin
     const { data: existing } = await supabase
       .from('students')
-      .select('id, is_active')
+      .select('id, is_active, password, status')
       .eq('cnic', form.cnic)
       .eq('roll_number', form.roll_number)
       .single()
 
     if (!existing) {
       setLoading(false)
-      return toast.error('You are not registered. Please contact admin.')
+      return toast.error('CNIC or Roll Number not found. Please contact admin.')
     }
 
-    if (existing.is_active) {
+    if (existing.status === 'dropout') {
       setLoading(false)
-      return toast.error('Account already activated. Please login.')
+      return toast.error('Your account has been deactivated. Please contact admin.')
     }
 
-    // Update password to activate account
+    if (existing.password) {
+      setLoading(false)
+      return toast.error('Account already activated. Please login with your password.')
+    }
+
+    // Set password and activate account
     const { error } = await supabase
       .from('students')
       .update({ password: form.password, is_active: true })
       .eq('id', existing.id)
 
     setLoading(false)
-    if (error) return toast.error('Signup failed. Try again.')
-    toast.success('Account activated! Please login.')
+    if (error) return toast.error('Signup failed: ' + error.message)
+    toast.success('Account activated! You can now login.')
     navigate('/student/login')
   }
 

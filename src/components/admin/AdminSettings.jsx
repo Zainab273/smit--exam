@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { supabase } from '../../lib/supabase'
 import toast from 'react-hot-toast'
@@ -9,6 +9,26 @@ export default function AdminSettings() {
   const [newAdmin, setNewAdmin] = useState({ name: '', username: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [showPw, setShowPw] = useState({ old: false, new: false, confirm: false })
+  const [admins, setAdmins] = useState([])
+  const [adminsLoading, setAdminsLoading] = useState(true)
+
+  const fetchAdmins = async () => {
+    setAdminsLoading(true)
+    const { data } = await supabase.from('admins').select('id, name, username, created_at').order('created_at', { ascending: true })
+    if (data) setAdmins(data)
+    setAdminsLoading(false)
+  }
+
+  useEffect(() => { fetchAdmins() }, [])
+
+  const handleDeleteAdmin = async (id, username) => {
+    if (id === user.id) return toast.error('You cannot delete your own account')
+    if (!confirm(`Delete admin "${username}"?`)) return
+    const { error } = await supabase.from('admins').delete().eq('id', id)
+    if (error) return toast.error('Failed to delete admin')
+    toast.success('Admin deleted')
+    fetchAdmins()
+  }
 
   const handleChangePassword = async (e) => {
     e.preventDefault()
@@ -53,6 +73,7 @@ export default function AdminSettings() {
     if (error) return toast.error('Failed to add admin: ' + error.message)
     toast.success(`Admin "${newAdmin.username}" added successfully!`)
     setNewAdmin({ name: '', username: '', password: '' })
+    fetchAdmins()
   }
 
   const PasswordInput = ({ label, field, value, onChange }) => (
@@ -168,6 +189,74 @@ export default function AdminSettings() {
             </button>
           </form>
         </div>
+      </div>
+
+      {/* All Admins List */}
+      <div className="mt-6 bg-white rounded-2xl shadow-sm border-2 border-gray-100 overflow-hidden">
+        <div className="bg-gradient-to-r from-gray-700 to-gray-900 text-white p-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <div>
+              <h4 className="font-bold text-lg">All Administrators</h4>
+              <p className="text-xs text-white/70">{admins.length} admin{admins.length !== 1 ? 's' : ''} registered</p>
+            </div>
+          </div>
+        </div>
+
+        {adminsLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <div className="w-7 h-7 border-4 border-[#0ea5e9] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {admins.map((admin, i) => (
+              <div key={admin.id} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition">
+                <div className="flex items-center gap-4">
+                  {/* Avatar */}
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0 ${
+                    admin.id === user.id
+                      ? 'bg-gradient-to-r from-[#0ea5e9] to-[#5ab87d]'
+                      : 'bg-gradient-to-r from-gray-500 to-gray-700'
+                  }`}>
+                    {admin.name?.charAt(0)?.toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-gray-800">{admin.name}</p>
+                      {admin.id === user.id && (
+                        <span className="text-xs bg-gradient-to-r from-[#0ea5e9] to-[#5ab87d] text-white px-2 py-0.5 rounded-full font-medium">
+                          You
+                        </span>
+                      )}
+                      {i === 0 && (
+                        <span className="text-xs bg-yellow-100 text-yellow-700 border border-yellow-200 px-2 py-0.5 rounded-full font-medium">
+                          Super Admin
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-500">@{admin.username}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <p className="text-xs text-gray-400 hidden sm:block">
+                    Joined {new Date(admin.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </p>
+                  {admin.id !== user.id && (
+                    <button
+                      onClick={() => handleDeleteAdmin(admin.id, admin.username)}
+                      className="text-xs text-red-400 hover:text-red-600 font-medium transition border border-red-200 hover:border-red-400 px-3 py-1.5 rounded-lg">
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

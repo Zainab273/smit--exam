@@ -44,14 +44,13 @@ export default function RegistrationManagement() {
 
     // If approved → add to students table so they can login
     if (status === 'approved') {
-      // Generate roll number: SMIT-YEAR-ID (e.g. SMIT-2026-0001)
       const year = new Date().getFullYear()
       const rollNumber = `SMIT-${year}-${String(Math.floor(Math.random() * 9000) + 1000)}`
 
-      // Check if student already exists (re-approval case)
+      // Check if student already exists
       const { data: existing } = await supabase
         .from('students')
-        .select('id')
+        .select('id, roll_number')
         .eq('cnic', reg.id_number)
         .single()
 
@@ -60,17 +59,28 @@ export default function RegistrationManagement() {
           name: reg.full_name,
           cnic: reg.id_number,
           roll_number: rollNumber,
+          course: reg.course,
           password: null,
           is_active: false,
         })
 
         if (studentError) {
-          toast.error('Registration approved but failed to add student: ' + studentError.message)
+          toast.error('Approved but failed to add student: ' + studentError.message)
         } else {
-          toast.success(`✅ Approved! Student added with Roll No: ${rollNumber}`)
+          // Also save roll_number back to registration record
+          await supabase
+            .from('student_registrations')
+            .update({ roll_number: rollNumber })
+            .eq('id', id)
+          toast.success(`✅ Approved! Roll No: ${rollNumber}`)
         }
       } else {
-        toast.success('Registration approved! Student already exists.')
+        // Already exists, just update registration with existing roll number
+        await supabase
+          .from('student_registrations')
+          .update({ roll_number: existing.roll_number })
+          .eq('id', id)
+        toast.success(`✅ Approved! Roll No: ${existing.roll_number}`)
       }
     } else {
       toast.success(`Registration ${status}!`)
@@ -283,6 +293,11 @@ export default function RegistrationManagement() {
 
               <div className="mt-6 pt-6 border-t-2 border-gray-100">
                 <InfoRow label="Registration Date" value={new Date(selected.created_at).toLocaleString()} />
+                {selected.roll_number && (
+                  <InfoRow label="Roll Number" value={
+                    <span className="font-mono text-[#0ea5e9] font-bold">{selected.roll_number}</span>
+                  } />
+                )}
                 <InfoRow label="Current Status" value={
                   <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${statusColors[selected.status]}`}>
                     {selected.status}

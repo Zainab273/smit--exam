@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS public.student_registrations (
   picture_url TEXT,
   
   status TEXT DEFAULT 'pending',
+  roll_number TEXT,
   
   CONSTRAINT student_registrations_email_key UNIQUE (email)
 );
@@ -56,6 +57,13 @@ ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS category TEXT;
 ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS duration TEXT;
 ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'open';
 ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS image TEXT;
+
+-- Add roll_number to student_registrations if not exists
+ALTER TABLE public.student_registrations ADD COLUMN IF NOT EXISTS roll_number TEXT;
+
+-- Add course and status columns to students if not exists
+ALTER TABLE public.students ADD COLUMN IF NOT EXISTS course TEXT;
+ALTER TABLE public.students ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active';
 
 -- Clear existing courses
 DELETE FROM public.courses;
@@ -92,7 +100,19 @@ CREATE TABLE IF NOT EXISTS public.students (
   roll_number TEXT NOT NULL UNIQUE,
   password TEXT,
   is_active BOOLEAN DEFAULT false,
+  status TEXT DEFAULT 'active',
   CONSTRAINT students_roll_number_key UNIQUE (roll_number)
+);
+
+-- Create attendance table
+CREATE TABLE IF NOT EXISTS public.attendance (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  student_id UUID NOT NULL REFERENCES public.students(id) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  status TEXT NOT NULL DEFAULT 'present',
+  CONSTRAINT attendance_status_check CHECK (status IN ('present', 'absent')),
+  CONSTRAINT attendance_unique UNIQUE (student_id, date)
 );
 
 -- Create leaves table (for student leave requests)
@@ -191,5 +211,15 @@ CREATE POLICY "Allow public all on leaves"
 ON public.leaves 
 FOR ALL
 TO public 
+USING (true)
+WITH CHECK (true);
+
+-- Attendance policies
+ALTER TABLE public.attendance ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public all on attendance" ON public.attendance;
+CREATE POLICY "Allow public all on attendance"
+ON public.attendance
+FOR ALL
+TO public
 USING (true)
 WITH CHECK (true);

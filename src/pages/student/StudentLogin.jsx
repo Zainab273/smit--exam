@@ -14,16 +14,34 @@ export default function StudentLogin() {
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
-    const { data, error } = await supabase
+
+    // First check if student exists with this CNIC
+    const { data: student } = await supabase
       .from('students')
       .select('*')
       .eq('cnic', form.cnic)
-      .eq('password', form.password)
       .single()
+
     setLoading(false)
-    if (error || !data) return toast.error('Invalid CNIC or password')
-    dispatch(setUser({ user: data, role: 'student' }))
-    toast.success('Welcome back!')
+
+    if (!student) {
+      return toast.error('CNIC not found. Please register first or contact admin.')
+    }
+
+    if (!student.password) {
+      return toast.error('Account not activated yet. Please sign up first to set your password.')
+    }
+
+    if (student.password !== form.password) {
+      return toast.error('Incorrect password. Please try again.')
+    }
+
+    if (student.status === 'dropout') {
+      return toast.error('Your account has been deactivated. Please contact admin.')
+    }
+
+    dispatch(setUser({ user: student, role: 'student' }))
+    toast.success(`Welcome back, ${student.name}!`)
     navigate('/student/dashboard')
   }
 
