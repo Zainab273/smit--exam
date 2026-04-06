@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { gsap } from 'gsap'
+import StudentSplash from '../components/StudentSplash'
 
 const shapes = [
   { top: '4%',  left: '1%',  size: 90,  color: '#38bdf8', rotate: 8,   filled: false },
@@ -41,6 +42,11 @@ export default function Landing() {
   const cardsRef = useRef(null)
   const shapesRef = useRef([])
   const dotsRef = useRef([])
+  const [showSplash, setShowSplash] = useState(false)
+
+  const handleStudentClick = () => {
+    setShowSplash(true)
+  }
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -126,6 +132,9 @@ export default function Landing() {
     <div ref={containerRef}
       className="relative min-h-screen overflow-hidden flex items-center justify-center"
       style={{ background: '#f1f5f9' }}>
+
+      {/* Splash screen */}
+      {showSplash && <StudentSplash onDone={() => navigate('/home')} />}
 
       {/* Soft glow center */}
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
@@ -213,54 +222,69 @@ export default function Landing() {
         </p>
 
         {/* Cards */}
-        <div ref={cardsRef} className="flex gap-6 flex-wrap justify-center">
+        <div ref={cardsRef} className="flex flex-col sm:flex-row gap-6 justify-center">
 
           {/* Student */}
-          <div className="portal-card cursor-pointer rounded-3xl p-7 flex flex-col items-center gap-4 w-52 bg-white"
-            style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}
+          <div className="portal-card cursor-pointer rounded-3xl p-8 flex flex-col items-center gap-5 w-56 bg-white group"
+            style={{ boxShadow: '0 20px 60px rgba(14,165,233,0.15)', border: '1.5px solid #e0f2fe' }}
             onMouseEnter={e => handleCardHover(e.currentTarget, true)}
             onMouseLeave={e => handleCardHover(e.currentTarget, false)}
-            onClick={() => navigate('/home')}>
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl"
-              style={{ background: 'linear-gradient(135deg, #e0f7fa, #b2ebf2)' }}>
+            onClick={handleStudentClick}>
+            <div className="w-18 h-18 rounded-2xl flex items-center justify-center text-4xl p-4 transition-transform group-hover:scale-110"
+              style={{ background: 'linear-gradient(135deg, #e0f7fa, #b2ebf2)', boxShadow: '0 8px 20px rgba(14,165,233,0.2)' }}>
               🎓
             </div>
             <div className="text-center">
-              <p className="font-black text-gray-800 text-xl">Student</p>
-              <p className="text-xs text-gray-400 mt-1">Enroll & manage courses</p>
+              <p className="font-black text-gray-800 text-xl tracking-tight">Student</p>
+              <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">Enroll & manage courses</p>
             </div>
-            <div className="w-full py-2.5 rounded-full text-sm font-bold text-white text-center"
+            <div className="w-full py-3 rounded-full text-sm font-bold text-white text-center transition-all group-hover:shadow-lg"
               style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)', boxShadow: '0 4px 15px #0ea5e950' }}>
               Enter Portal →
             </div>
           </div>
 
           {/* Divider */}
-          <div className="flex items-center">
-            <div className="w-px h-20 opacity-20"
+          <div className="hidden sm:flex items-center">
+            <div className="w-px h-24 opacity-20"
               style={{ background: 'linear-gradient(to bottom, transparent, #94a3b8, transparent)' }} />
           </div>
 
           {/* Admin */}
-          <div className="portal-card cursor-pointer rounded-3xl p-7 flex flex-col items-center gap-4 w-52 bg-white"
-            style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}
+          <div className="portal-card cursor-pointer rounded-3xl p-8 flex flex-col items-center gap-5 w-56 bg-white group"
+            style={{ boxShadow: '0 20px 60px rgba(99,102,241,0.15)', border: '1.5px solid #ede9fe' }}
             onMouseEnter={e => handleCardHover(e.currentTarget, true)}
             onMouseLeave={e => handleCardHover(e.currentTarget, false)}
             onClick={() => navigate('/admin/login')}>
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl"
-              style={{ background: 'linear-gradient(135deg, #ede9fe, #ddd6fe)' }}>
+            <div className="w-18 h-18 rounded-2xl flex items-center justify-center text-4xl p-4 transition-transform group-hover:scale-110"
+              style={{ background: 'linear-gradient(135deg, #ede9fe, #ddd6fe)', boxShadow: '0 8px 20px rgba(99,102,241,0.2)' }}>
               🛡️
             </div>
             <div className="text-center">
-              <p className="font-black text-gray-800 text-xl">Admin</p>
-              <p className="text-xs text-gray-400 mt-1">Manage system & students</p>
+              <p className="font-black text-gray-800 text-xl tracking-tight">Admin</p>
+              <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">Manage system & students</p>
             </div>
-            <div className="w-full py-2.5 rounded-full text-sm font-bold text-white text-center"
+            <div className="w-full py-3 rounded-full text-sm font-bold text-white text-center transition-all group-hover:shadow-lg"
               style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)', boxShadow: '0 4px 15px #6366f150' }}>
               Enter Portal →
             </div>
           </div>
 
+        </div>
+
+        {/* Bottom stats */}
+        <div className="mt-12 flex items-center gap-8 opacity-0 animate-[fadeIn_0.5s_ease_1.8s_forwards]"
+          style={{ animation: 'fadeInUp 0.6s ease 1.8s forwards', opacity: 0 }}>
+          {[
+            { val: '50K+', label: 'Students' },
+            { val: '200+', label: 'Trainers' },
+            { val: '20+', label: 'Courses' },
+          ].map((s, i) => (
+            <div key={i} className="text-center">
+              <p className="font-black text-lg" style={{ color: '#0ea5e9' }}>{s.val}</p>
+              <p className="text-xs text-gray-400">{s.label}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

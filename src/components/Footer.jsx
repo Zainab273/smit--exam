@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className="bg-gray-900 text-gray-300 pt-12 pb-6">
       <div className="max-w-6xl mx-auto px-6">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           {/* Brand Section */}
           <div>
             <div className="flex items-center gap-3 mb-4">
@@ -70,7 +70,7 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="mt-16 ml-8">
+          <div>
             <h4 className="text-white font-bold text-lg mb-4">Quick Links</h4>
             <ul className="space-y-2 text-base">
               <li>
@@ -92,7 +92,7 @@ export default function Footer() {
           </div>
 
           {/* Our Courses */}
-          <div className="mt-16">
+          <div>
             <h4 className="text-white font-bold text-lg mb-4">Our Courses</h4>
             <ul className="space-y-2 text-base">
               <li>
@@ -114,7 +114,7 @@ export default function Footer() {
           </div>
 
           {/* Resources */}
-          <div className="mt-16">
+          <div>
             <h4 className="text-white font-bold text-lg mb-4">Resources</h4>
             <ul className="space-y-2 text-base">
               <li>

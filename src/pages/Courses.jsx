@@ -4,7 +4,6 @@ import { supabase } from '../lib/supabase'
 import ApplyModal from '../components/ApplyModal'
 
 const categories = ['All', 'Development', 'Designing', 'Networking', 'Vocational', 'Entrepreneurship']
-
 // Sample courses data
 const sampleCourses = [
   { id: 1, name: 'AI & Chatbot', category: 'Development', description: 'Learn to build intelligent chatbots using AI and machine learning', duration: '5 months', status: 'open', image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=640&q=80' },
@@ -34,6 +33,7 @@ export default function Courses() {
   const [selected, setSelected] = useState(null)
   const [activeCategory, setActiveCategory] = useState('All')
   const [search, setSearch] = useState('')
+  const [mobileMenu, setMobileMenu] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -52,9 +52,9 @@ export default function Courses() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* NAVBAR */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 px-8 py-3 flex justify-between items-center">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 px-4 md:px-8 py-3 flex justify-between items-center">
         <div className="flex items-center gap-1">
-          <img src="https://mir-s3-cdn-cf.behance.net/projects/404/6e8e40210058827.Y3JvcCwxMDgwLDg0NCwwLDExNw.png" alt="SMIT" style={{ height: '52px', width: 'auto' }} />
+          <img src="https://mir-s3-cdn-cf.behance.net/projects/404/6e8e40210058827.Y3JvcCwxMDgwLDg0NCwwLDExNw.png" alt="SMIT" style={{ height: '44px', width: 'auto' }} />
         </div>
         <div className="hidden md:flex items-center gap-7 text-base text-gray-600 font-medium">
           <span onClick={() => navigate('/home')} className="cursor-pointer hover:text-blue-600 transition">Home</span>
@@ -62,26 +62,47 @@ export default function Courses() {
           <span onClick={() => navigate('/courses')} className="cursor-pointer text-blue-600 transition flex items-center gap-1">
             Courses <span className="text-xs">▾</span>
           </span>
-          <span className="cursor-pointer hover:text-blue-600 transition">Campuses</span>
+          <span onClick={() => navigate(`/campuses`)} className="cursor-pointer hover:text-blue-600 transition">Campuses</span>
           <span onClick={() => navigate('/result')} className="cursor-pointer hover:text-blue-600 transition">Check Result</span>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => navigate('/student/login')}
-            className="border-2 border-[#0ea5e9] text-[#0ea5e9] px-4 py-2 rounded-full text-sm font-bold hover:bg-blue-50 transition">
+            className="hidden sm:block border-2 border-[#0ea5e9] text-[#0ea5e9] px-4 py-2 rounded-full text-sm font-bold hover:bg-blue-50 transition">
             Login
           </button>
           <button onClick={() => navigate('/student/register')}
-            className="text-white px-5 py-2 rounded-full text-sm font-bold transition flex items-center gap-1"
+            className="text-white px-4 md:px-5 py-2 rounded-full text-sm font-bold transition flex items-center gap-1"
             style={{ background: '#0ea5e9' }}>
             Enroll Now ↗
+          </button>
+          <button className="md:hidden ml-1 p-2 rounded-lg hover:bg-gray-100 transition" onClick={() => setMobileMenu(!mobileMenu)}>
+            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileMenu
+                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}
+            </svg>
           </button>
         </div>
       </nav>
 
+      {/* Mobile Menu */}
+      {mobileMenu && (
+        <div className="fixed top-[60px] left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-lg md:hidden">
+          <div className="flex flex-col px-4 py-3 gap-3 text-base text-gray-700 font-medium">
+            <span onClick={() => { navigate('/home'); setMobileMenu(false) }} className="cursor-pointer hover:text-blue-600 py-2 border-b border-gray-100">Home</span>
+            <span onClick={() => { navigate('/about'); setMobileMenu(false) }} className="cursor-pointer hover:text-blue-600 py-2 border-b border-gray-100">About</span>
+            <span onClick={() => { navigate('/courses'); setMobileMenu(false) }} className="cursor-pointer text-blue-600 py-2 border-b border-gray-100">Courses</span>
+            <span className="cursor-pointer hover:text-blue-600 py-2 border-b border-gray-100">Campuses</span>
+            <span onClick={() => { navigate('/result'); setMobileMenu(false) }} className="cursor-pointer hover:text-blue-600 py-2 border-b border-gray-100">Check Result</span>
+            <span onClick={() => { navigate('/student/login'); setMobileMenu(false) }} className="cursor-pointer hover:text-blue-600 py-2">Login</span>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="text-white py-20 px-6 text-center mt-16"
+      <div className="text-white py-16 md:py-20 px-4 md:px-6 text-center mt-16"
         style={{ background: 'linear-gradient(90deg, #1e5ba8 0%, #2b7a9e 25%, #3a9b8f 50%, #5ab87d 75%, #8fd66f 100%)' }}>
-        <h1 className="text-4xl md:text-5xl font-black mb-4">Explore Our Courses</h1>
+        <h1 className="text-2xl md:text-4xl lg:text-5xl font-black mb-4">Explore Our Courses</h1>
         <p className="text-lg mb-6 opacity-90">Discover world-class IT training programs designed for your success</p>
         <div className="max-w-md mx-auto">
           <input
@@ -111,14 +132,14 @@ export default function Courses() {
       </div>
 
       {/* Courses Grid */}
-      <div className="max-w-6xl mx-auto px-6 py-10">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-10">
         {filtered.length === 0 ? (
           <div className="text-center py-20 text-gray-400">
             <div className="text-5xl mb-4">📭</div>
             <p>No courses found.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((course) => (
               <CourseCard key={course.id} course={course} onApply={() => setSelected(course)} />
             ))}

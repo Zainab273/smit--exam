@@ -15,6 +15,7 @@ export default function StudentRegistration() {
   const [idCardData, setIdCardData] = useState(null)
   const [registrationStatus, setRegistrationStatus] = useState(null)
   const contentRef = useRef(null)
+  const [mobileMenu, setMobileMenu] = useState(false)
   const [form, setForm] = useState({
     country: '', gender: '', course: '', class_preference: '', city: '', campus: '',
     full_name: '', father_name: '', dob: '', email: '', phone: '', father_phone: '',
@@ -236,9 +237,9 @@ export default function StudentRegistration() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* NAVBAR */}
-      <nav className="bg-white border-b border-gray-200 px-8 py-3 flex justify-between items-center">
+      <nav className="bg-white border-b border-gray-200 px-4 md:px-8 py-3 flex justify-between items-center">
         <div className="flex items-center gap-1">
-          <img src="https://mir-s3-cdn-cf.behance.net/projects/404/6e8e40210058827.Y3JvcCwxMDgwLDg0NCwwLDExNw.png" alt="SMIT" style={{ height: '52px', width: 'auto' }} />
+          <img src="https://mir-s3-cdn-cf.behance.net/projects/404/6e8e40210058827.Y3JvcCwxMDgwLDg0NCwwLDExNw.png" alt="SMIT" style={{ height: '44px', width: 'auto' }} />
         </div>
         <div className="hidden md:flex items-center gap-7 text-base text-gray-600 font-medium">
           <span onClick={() => navigate('/home')} className="cursor-pointer hover:text-blue-600 transition">Home</span>
@@ -249,26 +250,48 @@ export default function StudentRegistration() {
           <span className="cursor-pointer hover:text-blue-600 transition">Campuses</span>
           <span onClick={() => navigate('/result')} className="cursor-pointer hover:text-blue-600 transition">Check Result</span>
         </div>
-        <button onClick={() => navigate('/student/register')}
-          className="text-white px-5 py-2 rounded-full text-sm font-bold transition flex items-center gap-1"
-          style={{ background: '#0ea5e9' }}>
-          Enroll Now ↗
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => navigate('/student/register')}
+            className="text-white px-4 md:px-5 py-2 rounded-full text-sm font-bold transition flex items-center gap-1"
+            style={{ background: '#0ea5e9' }}>
+            Enroll Now ↗
+          </button>
+          <button className="md:hidden ml-1 p-2 rounded-lg hover:bg-gray-100 transition" onClick={() => setMobileMenu(!mobileMenu)}>
+            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileMenu
+                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}
+            </svg>
+          </button>
+        </div>
       </nav>
+
+      {/* Mobile Menu */}
+      {mobileMenu && (
+        <div className="bg-white border-b border-gray-200 shadow-lg md:hidden">
+          <div className="flex flex-col px-4 py-3 gap-3 text-base text-gray-700 font-medium">
+            <span onClick={() => { navigate('/home'); setMobileMenu(false) }} className="cursor-pointer hover:text-blue-600 py-2 border-b border-gray-100">Home</span>
+            <span onClick={() => { navigate('/about'); setMobileMenu(false) }} className="cursor-pointer hover:text-blue-600 py-2 border-b border-gray-100">About</span>
+            <span onClick={() => { navigate('/courses'); setMobileMenu(false) }} className="cursor-pointer hover:text-blue-600 py-2 border-b border-gray-100">Courses</span>
+            <span className="cursor-pointer hover:text-blue-600 py-2 border-b border-gray-100">Campuses</span>
+            <span onClick={() => { navigate('/result'); setMobileMenu(false) }} className="cursor-pointer hover:text-blue-600 py-2">Check Result</span>
+          </div>
+        </div>
+      )}
 
       {/* HERO HEADER */}
       <div className="relative overflow-hidden"
         style={{ 
           background: 'linear-gradient(90deg, #1e5ba8 0%, #2b7a9e 25%, #3a9b8f 50%, #5ab87d 75%, #8fd66f 100%)',
-          minHeight: '180px' 
+          minHeight: '160px' 
         }}>
-        <div className="max-w-6xl mx-auto px-6 py-10">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-10">
           <div className="flex items-center gap-2 text-white text-sm mb-3">
             <span className="cursor-pointer hover:underline" onClick={() => navigate('/home')}>🏠</span>
             <span>›</span>
             <span>{activeTab === 'registration' ? 'Enroll Now' : activeTab === 'download' ? 'Download ID Card' : 'Result'}</span>
           </div>
-          <h1 className="text-white text-4xl font-black mb-2">
+          <h1 className="text-white text-2xl md:text-4xl font-black mb-2">
             {activeTab === 'registration' ? 'Registration Form' : activeTab === 'download' ? 'Download Your ID Card' : 'Check Your Result'}
           </h1>
           <p className="text-white text-sm opacity-90">
@@ -282,24 +305,24 @@ export default function StudentRegistration() {
       </div>
 
       {/* TABS */}
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="flex gap-4 justify-center">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-8">
+        <div className="flex gap-2 md:gap-4 justify-start md:justify-center overflow-x-auto pb-2">
           <button onClick={() => setActiveTab('registration')}
-            className={`px-8 py-3 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-md ${
+            className={`px-4 md:px-8 py-2.5 md:py-3 rounded-full text-xs md:text-sm font-semibold transition flex items-center gap-2 shadow-md whitespace-nowrap ${
               activeTab === 'registration' ? 'text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
             }`}
             style={activeTab === 'registration' ? { background: '#0ea5e9' } : {}}>
             📋 Registration Form
           </button>
           <button onClick={() => setActiveTab('download')}
-            className={`px-8 py-3 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-md ${
+            className={`px-4 md:px-8 py-2.5 md:py-3 rounded-full text-xs md:text-sm font-semibold transition flex items-center gap-2 shadow-md whitespace-nowrap ${
               activeTab === 'download' ? 'text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
             }`}
             style={activeTab === 'download' ? { background: '#0ea5e9' } : {}}>
             💳 Download ID Card
           </button>
           <button onClick={() => setActiveTab('result')}
-            className={`px-8 py-3 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-md ${
+            className={`px-4 md:px-8 py-2.5 md:py-3 rounded-full text-xs md:text-sm font-semibold transition flex items-center gap-2 shadow-md whitespace-nowrap ${
               activeTab === 'result' ? 'text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
             }`}
             style={activeTab === 'result' ? { background: '#0ea5e9' } : {}}>
@@ -310,8 +333,8 @@ export default function StudentRegistration() {
 
       {/* FORM */}
       {activeTab === 'registration' && (
-        <div className="max-w-6xl mx-auto px-6 pb-12">
-          <div className="bg-white rounded-xl p-10 border-2 border-gray-200">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 pb-12">
+          <div className="bg-white rounded-xl p-4 md:p-10 border-2 border-gray-200">
             <form onSubmit={handleSubmit} className="space-y-12">
               
               {/* Location & Course Details */}
@@ -666,8 +689,8 @@ export default function StudentRegistration() {
       )}
 
       {activeTab === 'download' && (
-        <div className="max-w-6xl mx-auto px-6 pb-12" ref={contentRef}>
-          <div className="bg-white rounded-xl p-10 border-2 border-gray-200 max-w-2xl mx-auto">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 pb-12" ref={contentRef}>
+          <div className="bg-white rounded-xl p-6 md:p-10 border-2 border-gray-200 max-w-2xl mx-auto">
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-gradient-to-r from-[#0ea5e9] to-[#5ab87d] rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -786,8 +809,8 @@ export default function StudentRegistration() {
       )}
 
       {activeTab === 'result' && (
-        <div className="max-w-6xl mx-auto px-6 pb-12" ref={contentRef}>
-          <div className="bg-white rounded-xl p-10 border-2 border-gray-200 max-w-2xl mx-auto">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 pb-12" ref={contentRef}>
+          <div className="bg-white rounded-xl p-6 md:p-10 border-2 border-gray-200 max-w-2xl mx-auto">
             <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Check Your Result</h2>
             <p className="text-center text-gray-600 mb-6">Enter your roll number to view your results</p>
             <form onSubmit={handleSearchResult} className="space-y-4">

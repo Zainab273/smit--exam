@@ -13,6 +13,7 @@ import StudentRegistration from './pages/student/StudentRegistration'
 import StudentDashboard from './pages/student/StudentDashboard'
 import AdminLogin from './pages/admin/AdminLogin'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import Campuses from './pages/Campuses'
 
 function ProtectedRoute({ children, allowedRole }) {
   const { user, role } = useSelector((s) => s.auth)
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/courses" element={<Courses />} />
+        <Route path="/campuses" element={<Campuses />} />
         <Route path="/result" element={<Result />} />
         <Route path="/student/login" element={<StudentLogin />} />
         <Route path="/student/signup" element={<StudentSignup />} />
